@@ -1,0 +1,29 @@
+{
+  "id": "palladium",
+  "title": "Palladium System",
+  "description": "A system designed to emulate the feel of Palladium RPGs.",
+  "version": "0.4.0",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13.327"
+  },
+  "authors": [
+    {
+      "name": "Your Name"
+    }
+  ],
+  "esmodules": [
+    "main.js"
+  ],
+  "styles": [
+    "css/palladium.css"
+  ],
+  "packs": [],
+  "languages": [],
+  "grid": {
+    "distance": 5,
+    "units": "ft"
+  },
+  "primaryTokenAttribute": "health",
+  "secondaryTokenAttribute": "power"
+}

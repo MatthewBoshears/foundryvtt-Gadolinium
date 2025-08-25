@@ -1,0 +1,34 @@
+<form class="{{cssClass}}">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+    <h1><input name="name" type="text" value="{{item.name}}"/></h1>
+  </header>
+  <div class="sheet-body">
+    <div class="form-group">
+      <label>Damage Formula</label>
+      <input type="text" name="system.damageFormula" value="{{item.system.damageFormula}}"/>
+    </div>
+    <div class="form-group">
+      <label>Associated Maneuver</label>
+      <select name="system.maneuver">
+        {{#select item.system.maneuver}}
+        <option value="strike">Strike</option>
+        <option value="pullPunch">Pull Punch</option>
+        <option value="disarm">Disarm</option>
+        <option value="deathBlow">Death Blow</option>
+        <option value="flipThrow">Flip/Throw</option>
+        <option value="roll">Roll</option>
+        <option value="tackle">Tackle</option>
+        <option value="sniper">Sniper</option>
+        <option value="proficientWeapon">Proficient Weapon</option>
+        <option value="proficientRanged">Proficient Ranged</option>
+        <option value="proficientThrown">Proficient Thrown</option>
+        <option value="customRanged1">Custom Ranged 1</option>
+        <option value="customRanged2">Custom Ranged 2</option>
+        <option value="custom1">Custom Attack 1</option>
+        <option value="custom2">Custom Attack 2</option>
+        {{/select}}
+      </select>
+    </div>
+  </div>
+</form>

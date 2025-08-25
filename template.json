@@ -1,0 +1,57 @@
+{
+  "Actor": {
+    "types": ["character", "npc"],
+    "character": {
+      "prototypeToken": {
+        "actorLink": true
+      },
+      "attributes": { "iq": { "value": 8, "mod": 0 }, "me": { "value": 8, "mod": 0 }, "ma": { "value": 8, "mod": 0 }, "ps": { "value": 8, "mod": 0 }, "pp": { "value": 8, "mod": 0 }, "pe": { "value": 8, "mod": 0 }, "pb": { "value": 8, "mod": 0 }, "spd": { "value": 8, "mod": 0 } },
+      "health": { "value": 15, "max": 15 },
+      "sdc": { "value": 30, "max": 30 },
+      "chi": { "value": 10, "max": 10 },
+      "isp": { "value": 20, "max": 20 },
+      "level": { "value": 1 },
+      "initiative": { "value": 0 },
+      "perception": { "value": 0 },
+      "alignment": "Principled",
+      "actions": { "value": 3, "max": 3 },
+      "notes": "",
+      "defenses": { "parry": { "value": 0, "label": "Parry" }, "dodge": { "value": 0, "label": "Dodge" }, "rollWith": { "value": 0, "label": "Roll w/ Punch" } },
+      "saves": { "pain": { "value": 8, "target": 14, "label": "vs. Pain" }, "lethalPoison": { "value": 8, "target": 14, "label": "vs. Lethal Poison" }, "nonlethalPoison": { "value": 8, "target": 16, "label": "vs. Non-Lethal Poison" }, "drugs": { "value": 8, "target": 15, "label": "vs. Harmful Drugs" }, "magic": { "value": 8, "target": 12, "label": "vs. Magic" }, "psionics": { "value": 8, "target": 12, "label": "vs. Psionics" }, "insanity": { "value": 9, "target": 12, "label": "vs. Insanity" }, "horror": { "value": 9, "target": 0, "label": "vs. Horror Factor" } },
+      "armor": { "natural": 0, "worn": 0, "wornSdc": { "value": 0, "max": 0 } },
+      "maneuvers": { "strike": { "bonus": 0, "label": "Strike" }, "pullPunch": { "bonus": 0, "label": "Pull Punch" }, "disarm": { "bonus": 0, "label": "Disarm" }, "deathBlow": { "bonus": 0, "label": "Death Blow" }, "flipThrow": { "bonus": 0, "label": "Flip/Throw" }, "roll": { "bonus": 0, "label": "Roll" }, "tackle": { "bonus": 0, "label": "Tackle" }, "sniper": { "bonus": 0, "label": "Sniper" }, "proficientWeapon": { "bonus": 0, "label": "Proficient Weapon" }, "proficientRanged": { "bonus": 0, "label": "Proficient Ranged" }, "proficientThrown": { "bonus": 0, "label": "Proficient Thrown" }, "customRanged1": { "bonus": 0, "label": "Custom Ranged 1" }, "customRanged2": { "bonus": 0, "label": "Custom Ranged 2" }, "custom1": { "bonus": 0, "label": "Custom Attack 1" }, "custom2": { "bonus": 0, "label": "Custom Attack 2" } },
+      "penalties": { "weaponAttacks": 0, "defenses": 0, "savingThrows": 0 },
+      "flags": { "palladium": { "aimedShot": false, "calledShot": false } }
+    },
+    "npc": {
+      "prototypeToken": {
+        "actorLink": false
+      },
+      "attributes": { "iq": { "value": 8, "mod": 0 }, "me": { "value": 8, "mod": 0 }, "ma": { "value": 8, "mod": 0 }, "ps": { "value": 8, "mod": 0 }, "pp": { "value": 8, "mod": 0 }, "pe": { "value": 8, "mod": 0 }, "pb": { "value": 8, "mod": 0 }, "spd": { "value": 8, "mod": 0 } },
+      "health": { "value": 15, "max": 15 },
+      "sdc": { "value": 30, "max": 30 },
+      "chi": { "value": 10, "max": 10 },
+      "isp": { "value": 20, "max": 20 },
+      "level": { "value": 1 },
+      "initiative": { "value": 0 },
+      "perception": { "value": 0 },
+      "alignment": "Aberrant",
+      "actions": { "value": 3, "max": 3 },
+      "notes": "",
+      "defenses": { "parry": { "value": 0, "label": "Parry" }, "dodge": { "value": 0, "label": "Dodge" }, "rollWith": { "value": 0, "label": "Roll w/ Punch" } },
+      "saves": { "pain": { "value": 8, "target": 14, "label": "vs. Pain" }, "lethalPoison": { "value": 8, "target": 14, "label": "vs. Lethal Poison" }, "nonlethalPoison": { "value": 8, "target": 16, "label": "vs. Non-Lethal Poison" }, "drugs": { "value": 8, "target": 15, "label": "vs. Harmful Drugs" }, "magic": { "value": 8, "target": 12, "label": "vs. Magic" }, "psionics": { "value": 8, "target": 12, "label": "vs. Psionics" }, "insanity": { "value": 9, "target": 12, "label": "vs. Insanity" }, "horror": { "value": 9, "target": 0, "label": "vs. Horror Factor" } },
+      "armor": { "natural": 0, "worn": 0, "wornSdc": { "value": 0, "max": 0 } },
+      "maneuvers": { "strike": { "bonus": 0, "label": "Strike" }, "pullPunch": { "bonus": 0, "label": "Pull Punch" }, "disarm": { "bonus": 0, "label": "Disarm" }, "deathBlow": { "bonus": 0, "label": "Death Blow" }, "flipThrow": { "bonus": 0, "label": "Flip/Throw" }, "roll": { "bonus": 0, "label": "Roll" }, "tackle": { "bonus": 0, "label": "Tackle" }, "sniper": { "bonus": 0, "label": "Sniper" }, "proficientWeapon": { "bonus": 0, "label": "Proficient Weapon" }, "proficientRanged": { "bonus": 0, "label": "Proficient Ranged" }, "proficientThrown": { "bonus": 0, "label": "Proficient Thrown" }, "customRanged1": { "bonus": 0, "label": "Custom Ranged 1" }, "customRanged2": { "bonus": 0, "label": "Custom Ranged 2" }, "custom1": { "bonus": 0, "label": "Custom Attack 1" }, "custom2": { "bonus": 0, "label": "Custom Attack 2" } },
+      "penalties": { "weaponAttacks": 0, "defenses": 0, "savingThrows": 0 },
+      "flags": { "palladium": { "aimedShot": false, "calledShot": false } }
+    }
+  },
+  "Item": {
+    "types": ["skill", "weapon", "armor", "power", "effect"],
+    "skill": { "description": "", "base": 0, "perLevel": 0, "occupational": false, "total": 0 },
+    "weapon": { "description": "", "damageFormula": "1d6", "toHitBonus": 0, "parryBonus": 0, "range": "Melee", "maneuver": "strike" },
+    "armor": { "description": "", "ar": 10, "sdc": 100 },
+    "power": { "description": "", "saveType": "none", "saveDC": 12, "damageFormula": "" },
+    "effect": { "penalty": -2, "appliesTo": { "weaponAttacks": false, "defenses": false, "savingThrows": false }, "statusEffect": "" }
+  }
+}

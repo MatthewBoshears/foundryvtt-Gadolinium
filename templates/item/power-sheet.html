@@ -1,0 +1,38 @@
+<form class="{{cssClass}}">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+    <h1><input name="name" type="text" value="{{item.name}}"/></h1>
+  </header>
+  <div class="sheet-body">
+    <div class="grid grid-3col">
+      <div class="form-group">
+        <label>Saving Throw Type</label>
+        <select name="system.saveType">
+          {{#select item.system.saveType}}
+          <option value="none">None</option>
+          <option value="pain">vs. Pain</option>
+          <option value="lethalPoison">vs. Lethal Poison</option>
+          <option value="nonlethalPoison">vs. Non-Lethal Poison</option>
+          <option value="drugs">vs. Harmful Drugs</option>
+          <option value="magic">vs. Magic</option>
+          <option value="psionics">vs. Psionics</option>
+          <option value="insanity">vs. Insanity</option>
+          <option value="horror">vs. Horror Factor</option>
+          {{/select}}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Saving Throw DC</label>
+        <input type="number" name="system.saveDC" value="{{item.system.saveDC}}"/>
+      </div>
+      <div class="form-group">
+        <label>Damage Formula</label>
+        <input type="text" name="system.damageFormula" value="{{item.system.damageFormula}}"/>
+      </div>
+    </div>
+    <div class="form-group stacked">
+      <label>Description</label>
+      <textarea name="system.description">{{item.system.description}}</textarea>
+    </div>
+  </div>
+</form>

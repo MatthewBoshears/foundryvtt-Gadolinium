@@ -1,0 +1,132 @@
+<form class="{{cssClass}}" autocomplete="off">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}"/>
+    <div class="header-fields">
+      <h1 class="charname"><input name="name" type="text" value="{{actor.name}}" placeholder="Character Name"/></h1>
+    </div>
+  </header>
+
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="overview">Overview</a>
+    <a class="item" data-tab="combat">Combat</a>
+    <a class="item" data-tab="skills">Skills</a>
+    <a class="item" data-tab="powers">Powers</a>
+    <a class="item" data-tab="effects">Effects</a>
+    <a class="item" data-tab="notes">Notes</a>
+  </nav>
+
+  <section class="sheet-body">
+    <div class="tab overview" data-tab="overview">
+      <div class="grid grid-3col">
+        <div class="flex-col">
+          <h3>Vitals</h3>
+          <div class="form-group"><label>Level</label><input type="number" name="system.level.value" value="{{actor.system.level.value}}"/></div>
+          <div class="form-group"><label>Alignment</label><input type="text" name="system.alignment" value="{{actor.system.alignment}}"/></div>
+          <div class="form-group"><label>Initiative</label><input type="number" name="system.initiative.value" value="{{actor.system.initiative.value}}"/></div>
+          <div class="form-group"><label>Perception</label><div class="flex-group-center"><input type="number" name="system.perception.value" value="{{actor.system.perception.value}}"/><a class="roll-generic" data-roll="1d20+@system.perception.value" data-label="Perception"><i class="fas fa-dice-d20"></i></a></div></div>
+          <div class="form-group"><label>Actions</label><div class="flex-group-center"><input type="text" name="system.actions.value" value="{{actor.system.actions.value}}"/><span>/</span><input type="text" name="system.actions.max" value="{{actor.system.actions.max}}"/></div></div>
+          <div class="form-group"><label>I.S.P.</label><div class="flex-group-center"><input type="text" name="system.isp.value" value="{{actor.system.isp.value}}"/><span>/</span><input type="text" name="system.isp.max" value="{{actor.system.isp.max}}"/></div></div>
+          <div class="form-group"><label>Chi</label><div class="flex-group-center"><input type="text" name="system.chi.value" value="{{actor.system.chi.value}}"/><span>/</span><input type="text" name="system.chi.max" value="{{actor.system.chi.max}}"/></div></div>
+        </div>
+        <div class="flex-col">
+          <h3>Health & Armor</h3>
+          <div class="form-group"><label>HP</label><div class="flex-group-center"><input type="text" name="system.health.value" value="{{actor.system.health.value}}"/><span>/</span><input type="text" name="system.health.max" value="{{actor.system.health.max}}"/></div></div>
+          <div class="form-group"><label>S.D.C.</label><div class="flex-group-center"><input type="text" name="system.sdc.value" value="{{actor.system.sdc.value}}"/><span>/</span><input type="text" name="system.sdc.max" value="{{actor.system.sdc.max}}"/></div></div>
+          <div class="form-group"><label>Natural A.R.</label><input type="text" name="system.armor.natural" value="{{actor.system.armor.natural}}"/></div>
+          <div class="form-group"><label>Worn A.R.</label><input type="text" name="system.armor.worn" value="{{actor.system.armor.worn}}"/></div>
+          <div class="form-group"><label>Armor S.D.C.</label><div class="flex-group-center"><input type="text" name="system.armor.wornSdc.value" value="{{actor.system.armor.wornSdc.value}}"/><span>/</span><input type="text" name="system.armor.wornSdc.max" value="{{actor.system.armor.wornSdc.max}}"/></div></div>
+        </div>
+        <div class="flex-col attributes-list">
+          <h3>Attributes</h3>
+          {{#each actor.system.attributes as |attr key|}}<div class="form-group"><label>{{key}}</label><input type="text" name="system.attributes.{{key}}.value" value="{{attr.value}}" data-dtype="Number"/></div>{{/each}}
+        </div>
+      </div>
+    </div>
+    <div class="tab combat" data-tab="combat">
+      <div class="attack-modifiers"><div class="flex-group-center"><label>Aimed Shot (+3)</label><input type="checkbox" class="aimed-shot-checkbox" {{checked actor.flags.palladium.aimedShot}} /></div><div class="flex-group-center"><label>Called Shot (-3)</label><input type="checkbox" class="called-shot-checkbox" {{checked actor.flags.palladium.calledShot}} /></div></div>
+      <hr>
+      <div class="weapons-list items-list">
+        <h2>Weapons</h2>
+        <div class="item-header"><span>Weapon</span><span>Maneuver</span><span>Damage</span><span>Controls</span></div>
+        {{#each weapons as |weapon id|}}
+          <div class="item" data-item-id="{{weapon.id}}"><span class="item-name">{{weapon.name}}</span><span class="item-maneuver">{{weapon.maneuverLabel}}</span><span class="damage-formula">{{weapon.system.damageFormula}}</span><div class="item-controls"><a class="roll-weapon-attack" title="Roll Weapon Attack"><i class="fas fa-fist-raised"></i>/<i class="fas fa-dice-d6"></i></a><a class="item-edit" title="Edit Weapon"><i class="fas fa-edit"></i></a><a class="item-delete" title="Delete Weapon"><i class="fas fa-trash"></i></a></div></div>
+        {{/each}}
+      </div>
+      <div class="grid grid-2col">
+        <div class="combat-list items-list">
+          <h2>Defenses</h2>
+          <div class="item-header"><span>Defense</span><span>Bonus</span><span>Roll</span></div>
+          {{#each actor.system.defenses as |defense key|}}
+            <div class="item"><span class="item-name">{{defense.label}}</span><input type="text" name="system.defenses.{{key}}.value" value="{{defense.value}}" data-dtype="Number"/><div class="item-controls"><a class="roll-generic" data-roll="1d20+{{defense.value}}+@penalties.defenses" data-label="{{defense.label}}"><i class="fas fa-dice-d20"></i></a></div></div>
+          {{/each}}
+        </div>
+        <div class="saves-list items-list">
+          <h2>Saving Throws</h2>
+          <div class="item-header"><span>Save</span><span>Bonus</span><span>Roll</span></div>
+          {{#each actor.system.saves as |save key|}}
+            <div class="item"><span class="item-name">{{save.label}} ({{save.target}}+)</span><input type="text" name="system.saves.{{key}}.value" value="{{save.value}}" data-dtype="Number"/><div class="item-controls"><a class="roll-generic" data-roll="1d20+{{save.value}}+@penalties.savingThrows" data-label="{{save.label}}" data-target="{{save.target}}"><i class="fas fa-dice-d20"></i></a></div></div>
+          {{/each}}
+        </div>
+      </div>
+      <div class="maneuvers-list items-list">
+        <h2>General Combat Maneuvers</h2>
+        <div class="item-header"><span>Maneuver</span><span>Bonus</span><span>Roll</span></div>
+        {{#each actor.system.maneuvers as |maneuver key|}}
+          <div class="item"><span class="item-name">{{maneuver.label}}</span><input type="text" name="system.maneuvers.{{key}}.bonus" value="{{maneuver.bonus}}" data-dtype="Number"/><div class="item-controls"><a class="roll-maneuver" data-maneuver="{{key}}"><i class="fas fa-dice-d20"></i></a></div></div>
+        {{/each}}
+      </div>
+    </div>
+    <div class="tab skills" data-tab="skills">
+      <div class="skills-list items-list">
+        <div class="item-header"><span>Name</span><span class="skill-total">Total</span><span>Controls</span></div>
+        {{#each skills as |skill id|}}
+          <div class="item" data-item-id="{{skill.id}}"><span class="item-name">{{skill.name}}</span><strong class="skill-total">{{skill.system.total}}%</strong><div class="item-controls"><a class="roll-skill" title="Roll Skill"><i class="fas fa-dice-d20"></i></a><a class="item-edit" title="Edit Skill"><i class="fas fa-edit"></i></a><a class="item-delete" title="Delete Skill"><i class="fas fa-trash"></i></a></div></div>
+        {{/each}}
+      </div>
+    </div>
+    <div class="tab powers" data-tab="powers">
+      <div class="powers-list items-list">
+        <div class="item-header"><span></span><span>Name</span><span>Save</span><span>Controls</span></div>
+        {{#each powers as |power id|}}
+          <div class="item" data-item-id="{{power.id}}">
+            <a class="item-toggle"><i class="fas fa-caret-right"></i></a>
+            <span class="item-name">{{power.name}}</span>
+            <span class="save-info">{{#if (ne power.system.saveType 'none')}}{{power.saveLabel}} DC {{power.system.saveDC}}{{else}}None{{/if}}</span>
+            <div class="item-controls">
+              <a class="post-power" title="Post to Chat"><i class="fas fa-comment-dots"></i></a>
+              <a class="item-edit" title="Edit Power"><i class="fas fa-edit"></i></a>
+              <a class="item-delete" title="Delete Power"><i class="fas fa-trash"></i></a>
+            </div>
+          </div>
+          <div class="item-description">{{{power.enrichedDescription}}}</div>
+        {{/each}}
+      </div>
+    </div>
+    <div class="tab effects" data-tab="effects">
+      <div class="effects-list items-list">
+        <div class="item-header">
+          <span>Effect</span>
+          <span>Penalty</span>
+          <span>Applies To</span>
+          <span>Controls</span>
+        </div>
+        {{#each effects as |effect id|}}
+          <div class="item" data-effect-id="{{effect.id}}">
+            <span class="item-name flex-group-center"><img src="{{effect.icon}}" width="24" height="24"/> {{effect.label}}</span>
+            <span class="penalty-value">{{effect.displayData.penalty}}</span>
+            <span class="applies-to">{{effect.displayData.appliesToString}}</span>
+            <div class="item-controls">
+              <a class="effect-edit" title="Edit Effect"><i class="fas fa-edit"></i></a>
+              <a class="effect-delete" title="Delete Effect"><i class="fas fa-trash"></i></a>
+            </div>
+          </div>
+        {{/each}}
+      </div>
+    </div>
+    <div class="tab notes" data-tab="notes">
+      <div class="notes-editor">
+        <textarea name="system.notes">{{actor.system.notes}}</textarea>
+      </div>
+    </div>
+  </section>
+</form>
