@@ -18,6 +18,8 @@
   "styles": [
     "css/palladium.css"
   ],
+  "manifest": "https://raw.githubusercontent.com/MatthewBoshears/foundryvtt-Gadolinium/main/system.json",
+  "download": "https://github.com/MatthewBoshears/foundryvtt-Gadolinium/archive/refs/heads/main.zip",
   "packs": [],
   "languages": [],
   "grid": {
