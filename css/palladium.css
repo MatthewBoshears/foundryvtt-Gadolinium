@@ -17,7 +17,11 @@
 .palladium .sheet-tabs .item.active { background: rgba(0, 0, 0, 0.1); color: #8B0000; text-shadow: none; border-bottom: 3px solid #8B0000; }
 
 /* Tab Content Panes */
-.palladium .sheet-body { padding: 5px; }
+.palladium .sheet-body {
+  flex: 1; /* ADDED */
+  overflow-y: auto; /* ADDED */
+  padding: 5px;
+}
 .palladium .tab.active { display: block; }
 .palladium .tab.overview .attributes-list input { text-align: center; font-weight: bold; font-size: 1.2em; }
 
@@ -90,4 +94,132 @@
 .palladium .effects-list .item-header,
 .palladium .effects-list .item {
   grid-template-columns: 2fr 1fr 2fr 80px;
+}
+
+/* === New Two-Column Layout Styles === */
+
+/* Main container for the two columns */
+.palladium .sheet-main-content {
+  display: grid;
+  grid-template-columns: 280px 1fr; /* Sidebar width and main content width */
+  gap: 10px;
+}
+
+/* Sidebar styling */
+.palladium .sheet-sidebar {
+  padding: 5px;
+  border-right: 1px solid #7a7971;
+  overflow-y: auto;
+}
+
+/* New Sidebar Action Buttons */
+.palladium .sidebar-actions {
+  display: flex;
+  justify-content: space-evenly;
+  font-size: 1.5em;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #8B0000;
+  padding-bottom: 5px;
+}
+.palladium .sidebar-actions a {
+  color: #333;
+}
+.palladium .sidebar-actions a:hover {
+  color: #8B0000;
+  text-shadow: 0 0 5px #ff0000;
+}
+/* Tweaks for Action +/- buttons */
+/* Tweaks for Action +/- buttons */
+.palladium .stat-block .adjust-actions {
+  padding: 0 10px;
+  color: #333;
+}
+.palladium .stat-block .adjust-actions:hover {
+  color: #8B0000;
+}
+
+/* Main content area (tabs) */
+.palladium .sheet-content {
+  display: flex; /* ADDED */
+  flex-direction: column; /* ADDED */
+  overflow-y: hidden; /* CHANGED from auto */
+}
+
+/* Grid for stat blocks inside the sidebar */
+.palladium .sidebar-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5px;
+  margin-bottom: 10px;
+}
+.palladium .sidebar-grid-single {
+  grid-template-columns: 1fr; /* Use a single column for this grid */
+}
+
+/* Individual stat block styling */
+.palladium .stat-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  text-align: center;
+}
+
+.palladium .stat-block .stat-value {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #8B0000;/* Main container for the two columns */
+.palladium .sheet-main-content {
+  display: grid;
+  grid-template-columns: 280px 1fr; /* Sidebar width and main content width */
+  gap: 10px;
+  /* REMOVED the height property from here */
+}
+}
+
+.palladium .stat-block label {
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* Tweak roll icon in sidebar */
+.palladium .sidebar-grid .roll-generic {
+  margin-left: 10px;
+  font-size: 0.8em;
+}
+
+/* Fix for inline action display */
+.palladium .stat-block .stat-value {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  white-space: nowrap; /* Prevents wrapping */
+}
+
+/* New Adjuster Button Rows */
+.palladium .sidebar-adjusters {
+  margin-top: -5px; /* Pulls buttons closer to the block above */
+  margin-bottom: 5px;
+}
+.palladium .adjuster-group {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 2px 0;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+.palladium .adjuster-group a {
+  color: #333;
+  font-size: 1em;
+}
+.palladium .adjuster-group a:hover {
+  color: #8B0000;
 }

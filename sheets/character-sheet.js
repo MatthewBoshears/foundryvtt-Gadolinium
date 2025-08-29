@@ -1,23 +1,205 @@
 export class PalladiumCharacterSheet extends ActorSheet {
-  static get defaultOptions() { return foundry.utils.mergeObject(super.defaultOptions, { classes: ["palladium", "sheet", "actor", "character"], template: "systems/palladium/templates/actor/character-sheet.html", width: 800, height: 800, tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "overview" }] }); }
-  async getData(options) { const context = await super.getData(options); context.enrichedNotes = await TextEditor.enrichHTML(this.actor.system.notes ?? "", {async: true, relativeTo: this.actor}); context.skills = this.actor.items.filter(item => item.type === 'skill'); context.weapons = this.actor.items.filter(item => item.type === 'weapon'); 
-  const powers = this.actor.items.filter(item => item.type === 'power'); 
-  context.effects = this.actor.effects.map(effect => {
-      // Add a temporary 'displayData' property to the effect for the template to use.
-      // This data is now read directly from the effect's flags.
+
+  static get defaultOptions() {
+    return foundry.utils.mergeObject(super.defaultOptions, {
+      classes: ["palladium", "sheet", "actor", "character"],
+      template: "systems/palladium/templates/actor/character-sheet.html",
+      width: 800,
+      height: 800,
+      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "overview" }]
+    });
+  }
+
+  /**
+   * @override
+   * Prepare the data context for sheet rendering.
+   */
+  async getData(options) {
+    const context = await super.getData(options);
+
+    // Prepare actor data
+    context.enrichedNotes = await TextEditor.enrichHTML(this.actor.system.notes ?? "", { async: true, relativeTo: this.actor });
+
+    // Prepare items
+    context.skills = this.actor.items.filter(item => item.type === 'skill');
+    context.weapons = this.actor.items.filter(item => item.type === 'weapon');
+    const powers = this.actor.items.filter(item => item.type === 'power');
+
+    // Prepare active effects
+    context.effects = this.actor.effects.map(effect => {
       effect.displayData = {
         penalty: effect.getFlag("palladium", "penalty"),
         appliesToString: effect.getFlag("palladium", "appliesToString")
       };
       return effect;
     });
-    await Promise.all(powers.map(async (power) => { power.saveLabel = this.actor.system.saves[power.system.saveType]?.label ?? "N/A"; power.enrichedDescription = await TextEditor.enrichHTML(power.system.description ?? "", {async: true, relativeTo: this.actor}); })); context.powers = powers; for (const weapon of context.weapons) { const maneuverKey = weapon.system.maneuver ?? 'strike'; const maneuverLabel = this.actor.system.maneuvers[maneuverKey]?.label ?? 'N/A'; weapon.maneuverLabel = maneuverLabel; } return context; }
-  activateListeners(html) { super.activateListeners(html); html.find('.effect-edit').on('click', this._onEffectEdit.bind(this)); html.find('.item-edit').on('click', this._onItemEdit.bind(this)); html.find('.item-delete').on('click', this._onItemDelete.bind(this)); html.find('.item-toggle').on('click', this._onItemToggle.bind(this)); html.find('.effect-delete').on('click', this._onEffectDelete.bind(this)); html.find('.roll-skill').on('click', this._onRollSkill.bind(this)); html.find('.roll-generic').on('click', this._onGenericRoll.bind(this)); html.find('.roll-maneuver').on('click', this._onManeuverRoll.bind(this)); html.find('.roll-weapon-attack').on('click', this._onWeaponAttackRoll.bind(this)); html.find('.post-power').on('click', this._onPostPower.bind(this)); html.find('.aimed-shot-checkbox').on('change', this._onToggleAimedShot.bind(this)); html.find('.called-shot-checkbox').on('change', this._onToggleCalledShot.bind(this)); }
-  _onItemEdit(event) { event.preventDefault(); const itemElement = event.currentTarget.closest(".item"); if (!itemElement) return; const item = this.actor.items.get(itemElement.dataset.itemId); if (item) item.sheet.render(true); }
-  _onItemDelete(event) { event.preventDefault(); const itemElement = event.currentTarget.closest(".item"); if (!itemElement) return; const item = this.actor.items.get(itemElement.dataset.itemId); if (!item) return; new Dialog({ title: `Delete ${item.name}`, content: `<p>Are you sure you want to delete <strong>${item.name}</strong>?</p>`, buttons: { delete: { icon: '<i class="fas fa-trash"></i>', label: "Delete", callback: () => this.actor.deleteEmbeddedDocuments("Item", [item.id]) }, cancel: { icon: '<i class="fas fa-times"></i>', label: "Cancel" }, }, default: "cancel" }).render(true); }
-  _onEffectDelete(event) { event.preventDefault(); const effectId = event.currentTarget.closest(".item").dataset.effectId; const effect = this.actor.effects.get(effectId); if (effect) effect.delete(); }
-  _onItemToggle(event) { event.preventDefault(); const toggler = $(event.currentTarget); const itemRow = toggler.closest('.item'); const description = itemRow.next('.item-description'); toggler.find('i').toggleClass('fa-caret-right fa-caret-down'); description.slideToggle(200); }
-  async _onRollSkill(event) { event.preventDefault(); const itemElement = event.currentTarget.closest(".item"); const item = this.actor.items.get(itemElement.dataset.itemId); if (!item) return; const roll = new Roll("1d100"); await roll.evaluate(); const success = roll.total <= item.system.total; const resultText = success ? `<strong class="chat-success">SUCCESS</strong>` : `<strong class="chat-failure">FAILURE</strong>`; const flavorText = `<h2>Skill: ${item.name}</h2><p>Target: ${item.system.total}%</p>${resultText}`; await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: this.actor }), flavor: flavorText, flags: { core: { classes: ["palladium"] } } }); }
+
+    // Enrich power descriptions and prepare save labels
+    await Promise.all(powers.map(async (power) => {
+      power.saveLabel = this.actor.system.saves[power.system.saveType]?.label ?? "N/A";
+      power.enrichedDescription = await TextEditor.enrichHTML(power.system.description ?? "", { async: true, relativeTo: this.actor });
+    }));
+    context.powers = powers;
+
+    // Prepare weapon maneuver labels
+    for (const weapon of context.weapons) {
+      const maneuverKey = weapon.system.maneuver ?? 'strike';
+      const maneuverLabel = this.actor.system.maneuvers[maneuverKey]?.label ?? 'N/A';
+      weapon.maneuverLabel = maneuverLabel;
+    }
+
+    return context;
+  }
+
+  /**
+   * @override
+   * Activate event listeners for the sheet.
+   */
+  activateListeners(html) {
+    super.activateListeners(html);
+    
+    // Sidebar Controls
+    html.find('.reset-sdc').on('click', this._onResetSDC.bind(this));
+    html.find('.reset-essentials').on('click', this._onResetEssentials.bind(this));
+    html.find('.adjust-actions').on('click', this._onAdjustActions.bind(this));
+    html.find('.adjust-isp').on('click', this._onAdjustISP.bind(this));
+    html.find('.adjust-chi').on('click', this._onAdjustChi.bind(this));
+
+    // General Controls
+    html.find('.effect-edit').on('click', this._onEffectEdit.bind(this));
+    html.find('.item-edit').on('click', this._onItemEdit.bind(this));
+    html.find('.item-delete').on('click', this._onItemDelete.bind(this));
+    html.find('.item-toggle').on('click', this._onItemToggle.bind(this));
+    html.find('.effect-delete').on('click', this._onEffectDelete.bind(this));
+    html.find('.roll-skill').on('click', this._onRollSkill.bind(this));
+    html.find('.roll-generic').on('click', this._onGenericRoll.bind(this));
+    html.find('.roll-maneuver').on('click', this._onManeuverRoll.bind(this));
+    html.find('.roll-weapon-attack').on('click', this._onWeaponAttackRoll.bind(this));
+    html.find('.post-power').on('click', this._onPostPower.bind(this));
+    html.find('.aimed-shot-checkbox').on('change', this._onToggleAimedShot.bind(this));
+    html.find('.called-shot-checkbox').on('change', this._onToggleCalledShot.bind(this));
+  }
+
+  // --- Sidebar Button Handlers ---
+
+  _onResetSDC(event) {
+    event.preventDefault();
+    const actorData = this.actor.system;
+    this.actor.update({
+      'system.sdc.value': actorData.sdc.max,
+      'system.armor.wornSdc.value': actorData.armor.wornSdc.max
+    });
+    ui.notifications.info("SDC and Armor SDC have been restored.");
+  }
+
+  _onResetEssentials(event) {
+    event.preventDefault();
+    const actorData = this.actor.system;
+    this.actor.update({
+      'system.isp.value': actorData.isp.max,
+      'system.chi.value': actorData.chi.max
+    });
+    ui.notifications.info("ISP and Chi have been restored.");
+  }
+
+  _onAdjustActions(event) {
+    event.preventDefault();
+    const actions = this.actor.system.actions;
+    const amount = parseInt(event.currentTarget.dataset.amount, 10);
+    const currentValue = parseInt(actions.value, 10) || 0;
+    let newValue = currentValue + amount;
+    newValue = Math.max(0, Math.min(newValue, actions.max));
+    this.actor.update({ 'system.actions.value': newValue });
+  }
+
+  _onAdjustISP(event) {
+    event.preventDefault();
+    const isp = this.actor.system.isp;
+    const baseAmount = parseInt(event.currentTarget.dataset.amount, 10);
+    const finalAmount = event.shiftKey ? baseAmount * 5 : baseAmount;
+    const currentValue = parseInt(isp.value, 10) || 0;
+    let newValue = currentValue + finalAmount;
+    newValue = Math.max(0, Math.min(newValue, isp.max));
+    this.actor.update({ 'system.isp.value': newValue });
+  }
+
+  _onAdjustChi(event) {
+    event.preventDefault();
+    const chi = this.actor.system.chi;
+    const baseAmount = parseInt(event.currentTarget.dataset.amount, 10);
+    const finalAmount = event.shiftKey ? baseAmount * 5 : baseAmount;
+    const currentValue = parseInt(chi.value, 10) || 0;
+    let newValue = currentValue + finalAmount;
+    newValue = Math.max(0, Math.min(newValue, chi.max));
+    this.actor.update({ 'system.chi.value': newValue });
+  }
+
+  // --- Item/Effect Control Handlers ---
+
+  _onItemEdit(event) {
+    event.preventDefault();
+    const itemElement = event.currentTarget.closest(".item");
+    if (!itemElement) return;
+    const item = this.actor.items.get(itemElement.dataset.itemId);
+    if (item) item.sheet.render(true);
+  }
+
+  _onItemDelete(event) {
+    event.preventDefault();
+    const itemElement = event.currentTarget.closest(".item");
+    if (!itemElement) return;
+    const item = this.actor.items.get(itemElement.dataset.itemId);
+    if (!item) return;
+    new Dialog({
+      title: `Delete ${item.name}`,
+      content: `<p>Are you sure you want to delete <strong>${item.name}</strong>?</p>`,
+      buttons: {
+        delete: {
+          icon: '<i class="fas fa-trash"></i>',
+          label: "Delete",
+          callback: () => this.actor.deleteEmbeddedDocuments("Item", [item.id])
+        },
+        cancel: {
+          icon: '<i class="fas fa-times"></i>',
+          label: "Cancel"
+        },
+      },
+      default: "cancel"
+    }).render(true);
+  }
+
+  _onEffectDelete(event) {
+    event.preventDefault();
+    const effectId = event.currentTarget.closest(".item").dataset.effectId;
+    const effect = this.actor.effects.get(effectId);
+    if (effect) effect.delete();
+  }
+  
+  async _onEffectEdit(event) {
+    event.preventDefault();
+    const effectElement = event.currentTarget.closest(".item");
+    if (!effectElement) return;
+    const effect = this.actor.effects.get(effectElement.dataset.effectId);
+    if (effect) {
+      effect.sheet.render(true);
+    }
+  }
+
+  _onItemToggle(event) {
+    event.preventDefault();
+    const toggler = $(event.currentTarget);
+    const itemRow = toggler.closest('.item');
+    const description = itemRow.next('.item-description');
+    toggler.find('i').toggleClass('fa-caret-right fa-caret-down');
+    description.slideToggle(200);
+  }  
+  async _onRollSkill(event) { 
+    event.preventDefault(); 
+    const itemElement = event.currentTarget.closest(".item"); 
+    const item = this.actor.items.get(itemElement.dataset.itemId); 
+    if (!item) return; const roll = new Roll("1d100"); 
+    await roll.evaluate(); const success = roll.total <= item.system.total; 
+    const resultText = success ? `<strong class="chat-success">SUCCESS</strong>` : `<strong class="chat-failure">FAILURE</strong>`; const flavorText = `<h2>Skill: ${item.name}</h2><p>Target: ${item.system.total}%</p>${resultText}`; await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: this.actor }), flavor: flavorText, flags: { core: { classes: ["palladium"] } } }); }
   async _onGenericRoll(event) { event.preventDefault(); const element = event.currentTarget; const dataset = element.dataset; const roll = new Roll(dataset.roll, this.actor.getRollData()); await roll.evaluate(); let resultText = ''; if (dataset.target) { const target = parseInt(dataset.target); const success = roll.total >= target; resultText = success ? `<strong class="chat-success">SUCCESS</strong>` : `<strong class="chat-failure">FAILURE</strong>`; } const flavorText = `<h2>${dataset.label}</h2>${resultText}`; await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: this.actor }), flavor: flavorText, flags: { core: { classes: ["palladium"] } } }); }
   async _onToggleAimedShot(event) { event.preventDefault(); await this.actor.setFlag("palladium", "aimedShot", event.currentTarget.checked); }
   async _onToggleCalledShot(event) { event.preventDefault(); await this.actor.setFlag("palladium", "calledShot", event.currentTarget.checked); }
