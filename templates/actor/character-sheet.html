@@ -1,91 +1,92 @@
 <form class="{{cssClass}}" autocomplete="off">
-
-  {{!-- Sheet Header --}}
-  <header class="sheet-header">
-    <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
-    <div class="header-fields">
-      <h1 class="charname"><input name="name" type="text" value="{{actor.name}}" placeholder="Character Name" /></h1>
-    </div>
-  </header>
-
-  {{!-- New Main Body Container --}}
-  <main class="sheet-main-content">
-
+  <div class="sheet-container">
     {{!-- Left Sidebar (Always Visible) --}}
- <aside class="sheet-sidebar">
-      <div class="sidebar-actions">
-        <a class="reset-sdc" title="Rest (Reset SDC)"><i class="fas fa-bed"></i></a>
-        <a class="reset-essentials" title="Meditate (Reset ISP & Chi)"><i class="fas fa-om"></i></a>
-      </div>
+    <aside class="sheet-sidebar">
+      <div class="sidebar-content">
+        <div class="sidebar-avatar">
+          <img src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
+        </div>
 
-      <h3>Vitals</h3>
-      <div class="sidebar-grid">
-        <div class="stat-block">
-          <div class="stat-value">{{actor.system.health.value}} / {{actor.system.health.max}}</div>
-          <label>Hit Points</label>
+        <div class="sidebar-actions">
+          <a class="reset-sdc" title="Rest (Reset SDC)"><i class="fas fa-bed"></i></a>
+          <a class="reset-essentials" title="Meditate (Reset ISP & Chi)"><i class="fas fa-om"></i></a>
         </div>
-        <div class="stat-block">
-          <div class="stat-value">{{actor.system.sdc.value}} / {{actor.system.sdc.max}}</div>
-          <label>Character S.D.C.</label>
-        </div>
-      </div>
 
-      <div class="sidebar-grid sidebar-adjusters">
-        <div></div> <div class="adjuster-group">
-           <a class="adjust-actions" data-amount="-1" title="Decrease Actions"><i class="fas fa-minus"></i></a>
-           <a class="adjust-actions" data-amount="+1" title="Increase Actions"><i class="fas fa-plus"></i></a>
+        <h3>Vitals</h3>
+        <div class="sidebar-grid">
+          <div class="stat-block">
+            <div class="stat-value">{{actor.system.health.value}} / {{actor.system.health.max}}</div>
+            <label>Hit Points</label>
+          </div>
+          <div class="stat-block">
+            <div class="stat-value">{{actor.system.sdc.value}} / {{actor.system.sdc.max}}</div>
+            <label>Character S.D.C.</label>
+          </div>
         </div>
-      </div>
-      <div class="sidebar-grid">
-        <div class="stat-block">
-          <div class="stat-value">{{actor.system.armor.wornSdc.value}} / {{actor.system.armor.wornSdc.max}}</div>
-          <label>Armor S.D.C.</label>
-        </div>
-        <div class="stat-block">
-          <div class="stat-value">{{actor.system.actions.value}} / {{actor.system.actions.max}}</div>
-          <label>Actions / Attacks</label>
-        </div>
-      </div>
 
-      <div class="sidebar-grid sidebar-adjusters">
-        <div class="adjuster-group">
-            <a class="adjust-isp" data-amount="-1" title="Decrease ISP"><i class="fas fa-minus"></i></a>
-            <a class="adjust-isp" data-amount="+1" title="Increase ISP"><i class="fas fa-plus"></i></a>
+        <div class="sidebar-grid">
+          <div class="stat-group">
+            <div class="stat-block">
+              <div class="stat-value">{{actor.system.armor.wornSdc.value}} / {{actor.system.armor.wornSdc.max}}</div>
+              <label>Armor S.D.C.</label>
+            </div>
+          </div>
+          <div class="stat-group">
+            <div class="stat-block">
+              <div class="stat-value">{{actor.system.actions.value}} / {{actor.system.actions.max}}</div>
+              <label>Actions / Attacks</label>
+            </div>
+            <div class="adjuster-group">
+              <a class="adjust-actions" data-amount="-1" title="Decrease Actions"><i class="fas fa-minus"></i></a>
+              <a class="adjust-actions" data-amount="+1" title="Increase Actions"><i class="fas fa-plus"></i></a>
+            </div>
+          </div>
         </div>
-        <div class="adjuster-group">
-            <a class="adjust-chi" data-amount="-1" title="Decrease Chi"><i class="fas fa-minus"></i></a>
-            <a class="adjust-chi" data-amount="+1" title="Increase Chi"><i class="fas fa-plus"></i></a>
-        </div>
-      </div>
-      <div class="sidebar-grid">
-        <div class="stat-block">
-            <div class="stat-value">{{actor.system.isp.value}} / {{actor.system.isp.max}}</div>
-            <label>I.S.P.</label>
-        </div>
-        <div class="stat-block">
-            <div class="stat-value">{{actor.system.chi.value}} / {{actor.system.chi.max}}</div>
-            <label>Chi</label>
-        </div>
-      </div>
 
-      <h3>General</h3>
-      <div class="sidebar-grid sidebar-grid-single">
-        <div class="stat-block">
+        <div class="sidebar-grid">
+          <div class="stat-group">
+            <div class="stat-block">
+                <div class="stat-value">{{actor.system.isp.value}} / {{actor.system.isp.max}}</div>
+                <label>I.S.P.</label>
+            </div>
+            <div class="adjuster-group">
+                <a class="adjust-isp" data-amount="-1" title="Decrease ISP"><i class="fas fa-minus"></i></a>
+                <a class="adjust-isp" data-amount="+1" title="Increase ISP"><i class="fas fa-plus"></i></a>
+            </div>
+          </div>
+          <div class="stat-group">
+            <div class="stat-block">
+                <div class="stat-value">{{actor.system.chi.value}} / {{actor.system.chi.max}}</div>
+                <label>Chi</label>
+            </div>
+            <div class="adjuster-group">
+                <a class="adjust-chi" data-amount="-1" title="Decrease Chi"><i class="fas fa-minus"></i></a>
+                <a class="adjust-chi" data-amount="+1" title="Increase Chi"><i class="fas fa-plus"></i></a>
+            </div>
+          </div>
+        </div>
+        <h3>General</h3>
+        <div class="sidebar-grid sidebar-grid-single">
+          <div class="stat-block">
             <div class="stat-value">{{actor.system.alignment}}</div>
             <label>Alignment</label>
-        </div>
-        <div class="stat-block">
+          </div>
+          <div class="stat-block">
             <div class="stat-value flex-group-center">
-                {{actor.system.perception.value}}
-                <a class="roll-generic" data-roll="1d20+@system.perception.value" data-label="Perception"><i class="fas fa-dice-d20"></i></a>
+              {{actor.system.perception.value}}
+              <a class="roll-generic" data-roll="1d20+@system.perception.value" data-label="Perception"><i class="fas fa-dice-d20"></i></a>
             </div>
             <label>Perception</label>
+          </div>
         </div>
       </div>
     </aside>
 
-    {{!-- Right Content Area (Tabs) --}}
-    <section class="sheet-content">
+    {{!-- Main Content Area --}}
+    <div class="main-content-area">
+      <header class="sheet-header-new">
+        <h1 class="charname">{{actor.name}}</h1>
+      </header>
       <nav class="sheet-tabs tabs" data-group="primary">
         <a class="item" data-tab="overview">Overview</a>
         <a class="item" data-tab="combat">Combat</a>
@@ -94,7 +95,6 @@
         <a class="item" data-tab="effects">Effects</a>
         <a class="item" data-tab="notes">Notes</a>
       </nav>
-
       <section class="sheet-body">
         {{!-- Overview Tab --}}
         <div class="tab overview" data-tab="overview">
@@ -210,5 +210,8 @@
         <textarea name="system.notes">{{actor.system.notes}}</textarea>
       </div>
     </div>
-  </section>
+
+      </section>
+    </div>
+  </div>
 </form>

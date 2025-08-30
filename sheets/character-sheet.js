@@ -15,6 +15,7 @@ export class PalladiumCharacterSheet extends ActorSheet {
    * Prepare the data context for sheet rendering.
    */
   async getData(options) {
+    // This is the CRUCIAL line. It loads the default context, including 'isGM'.
     const context = await super.getData(options);
 
     // Prepare actor data
@@ -25,13 +26,15 @@ export class PalladiumCharacterSheet extends ActorSheet {
     context.weapons = this.actor.items.filter(item => item.type === 'weapon');
     const powers = this.actor.items.filter(item => item.type === 'power');
 
-    // Prepare active effects
+    // Prepare active effects for display
     context.effects = this.actor.effects.map(effect => {
-      effect.displayData = {
+      const effectData = effect.toObject(false);
+      effectData.id = effect.id; // Ensure the ID is present for the template
+      effectData.displayData = {
         penalty: effect.getFlag("palladium", "penalty"),
         appliesToString: effect.getFlag("palladium", "appliesToString")
       };
-      return effect;
+      return effectData;
     });
 
     // Enrich power descriptions and prepare save labels
