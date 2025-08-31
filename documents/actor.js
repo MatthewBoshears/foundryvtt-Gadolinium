@@ -42,13 +42,15 @@ export class PalladiumActor extends Actor {
     if (iq >= 16) {
       iqBonus = iq - 14;
       if (iq >= 35) iqBonus += 2;
+      if (iq >= 40) iqBonus += 2;
+      if (iq >= 45) iqBonus += 2;
     }
     const skills = this.items.filter(item => item.type === 'skill');
     for (const skill of skills) {
       const skillData = skill.system;
       const baseValue = parseInt(skillData.base ?? 0);
       const perLevelValue = parseInt(skillData.perLevel ?? 0);
-      const levelBonus = level * perLevelValue;
+      const levelBonus = (level - 1) * perLevelValue;
       const calculatedTotal = baseValue + levelBonus + iqBonus;
       skillData.total = Math.min(calculatedTotal, 98);
     }
