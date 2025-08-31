@@ -33,18 +33,30 @@ export class PalladiumActor extends Actor {
     this._prepareSkills();
   }
 
+  _calculateIqBonus(iq) {
+    if (iq < 16) {
+      return 0;
+    }
+    if (iq <= 30) {
+      return iq - 14;
+    }
+
+    const baseBonusAt30 = 16;
+    const pointsAbove30 = iq - 30;
+    const fivePointIntervals = Math.floor(pointsAbove30 / 5);
+    const bonusFromIntervals = fivePointIntervals * 2;
+
+    return baseBonusAt30 + bonusFromIntervals;
+  }
+
   _prepareSkills() {
     if (!['character', 'npc'].includes(this.type)) return;
     const actorData = this.system;
     const level = parseInt(actorData.level?.value ?? 1);
     const iq = parseInt(actorData.attributes?.iq?.value ?? 0);
-    let iqBonus = 0;
-    if (iq >= 16) {
-      iqBonus = iq - 14;
-      if (iq >= 35) iqBonus += 2;
-      if (iq >= 40) iqBonus += 2;
-      if (iq >= 45) iqBonus += 2;
-    }
+
+    const iqBonus = this._calculateIqBonus(iq)
+    
     const skills = this.items.filter(item => item.type === 'skill');
     for (const skill of skills) {
       const skillData = skill.system;
