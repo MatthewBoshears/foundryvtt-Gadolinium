@@ -1,5 +1,10 @@
 export class PalladiumCharacterSheet extends ActorSheet {
 
+  constructor(...args) {
+    super(...args);
+    this._notesEditing = false;
+  }
+
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["palladium", "sheet", "actor", "character"],
@@ -17,14 +22,15 @@ export class PalladiumCharacterSheet extends ActorSheet {
   async getData(options) {
     // This is the CRUCIAL line. It loads the default context, including 'isGM'.
     const context = await super.getData(options);
+    context.notesEditing = this._notesEditing; // <-- ADD THIS LINE
 
     // Prepare actor data
     context.enrichedNotes = await TextEditor.enrichHTML(this.actor.system.notes ?? "", { async: true, relativeTo: this.actor });
 
     // Prepare items
-    context.skills = this.actor.items.filter(item => item.type === 'skill');
-    context.weapons = this.actor.items.filter(item => item.type === 'weapon');
-    const powers = this.actor.items.filter(item => item.type === 'power');
+    context.skills = this.actor.items.filter(item => item.type === 'skill').sort((a, b) => a.name.localeCompare(b.name));
+    context.weapons = this.actor.items.filter(item => item.type === 'weapon').sort((a, b) => a.name.localeCompare(b.name));
+    const powers = this.actor.items.filter(item => item.type === 'power').sort((a, b) => a.name.localeCompare(b.name));
 
     // Prepare active effects for display
     context.effects = this.actor.effects.map(effect => {
@@ -81,6 +87,9 @@ export class PalladiumCharacterSheet extends ActorSheet {
     html.find('.post-power').on('click', this._onPostPower.bind(this));
     html.find('.aimed-shot-checkbox').on('change', this._onToggleAimedShot.bind(this));
     html.find('.called-shot-checkbox').on('change', this._onToggleCalledShot.bind(this));
+    html.find('.roll-perception').on('click', this._onRollPerception.bind(this));
+    html.find('.edit-notes').on('click', this._onEditNotes.bind(this));
+    html.find('.cancel-notes-edit').on('click', this._onCancelNotesEdit.bind(this));
   }
 
   // --- Sidebar Button Handlers ---
@@ -207,9 +216,138 @@ export class PalladiumCharacterSheet extends ActorSheet {
   async _onToggleAimedShot(event) { event.preventDefault(); await this.actor.setFlag("palladium", "aimedShot", event.currentTarget.checked); }
   async _onToggleCalledShot(event) { event.preventDefault(); await this.actor.setFlag("palladium", "calledShot", event.currentTarget.checked); }
   async _onManeuverRoll(event) { event.preventDefault(); const maneuverKey = event.currentTarget.dataset.maneuver; const maneuver = this.actor.system.maneuvers[maneuverKey]; if (!maneuver) return; const rollFormula = `1d20 + @attributes.pp.mod + ${maneuver.bonus} + @penalties.weaponAttacks`; const roll = new Roll(rollFormula, this.actor.getRollData()); await roll.evaluate(); await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: this.actor }), flavor: `<h2>Attack: ${maneuver.label}</h2>` }); }
-  async _onPostPower(event) { event.preventDefault(); const itemElement = event.currentTarget.closest(".item"); const item = this.actor.items.get(itemElement.dataset.itemId); if (!item) return; let content = await TextEditor.enrichHTML(item.system.description, {async: true}); const powerData = { powerName: item.name, saveType: item.system.saveType, saveDC: item.system.saveDC, damageFormula: item.system.damageFormula }; let buttons = ''; if (item.system.saveType !== "none") { const saveLabel = this.actor.system.saves[item.system.saveType]?.label ?? "Save"; buttons += `<button data-action="roll-power-save">${saveLabel} vs DC ${item.system.saveDC}</button>`; } if (item.system.damageFormula) { buttons += `<button data-action="roll-power-damage">Roll Damage</button>`; } if (buttons) { content += `<hr><div class="card-buttons">${buttons}</div>`; } ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: this.actor }), flavor: `<h2>${item.name}</h2>`, content: content, flags: { palladium: { powerData } } }); }
-  async _onWeaponAttackRoll(event) { event.preventDefault(); const weaponId = event.currentTarget.closest(".item").dataset.itemId; if (!weaponId) return; const weapon = this.actor.items.get(weaponId); const targets = Array.from(game.user.targets); if (targets.length === 0) return ui.notifications.warn("Please target a token."); const target = targets[0]; const targetActor = target.actor; const hasWornArmor = (targetActor.system.armor.worn ?? 0) > 0; const wornAR = targetActor.system.armor.worn ?? 0; const naturalAR = targetActor.system.armor.natural ?? 0; const isAimed = this.actor.getFlag("palladium", "aimedShot") ?? false; const isCalled = this.actor.getFlag("palladium", "calledShot") ?? false; const maneuverKey = weapon.system.maneuver || "strike"; const maneuverBonus = this.actor.system.maneuvers[maneuverKey]?.bonus ?? 0; const attackFormula = `1d20 + ${maneuverBonus} + @penalties.weaponAttacks + ${isAimed ? 3 : 0} + ${isCalled ? -3 : 0}`; const attackRoll = new Roll(attackFormula, this.actor.getRollData()); await attackRoll.evaluate(); const renderedRoll = await attackRoll.render(); const rangedManeuvers = ['sniper', 'proficientRanged', 'proficientThrown']; const minimumRoll = rangedManeuvers.includes(maneuverKey) ? 8 : 4; let isHit = false; let hitType = "miss"; let targetAR = 0; let targetLabel = ""; if (attackRoll.total >= minimumRoll) { if (hasWornArmor && attackRoll.total < wornAR) { isHit = true; hitType = "armorHit"; targetAR = wornAR; targetLabel = "Worn Armor"; } else if (attackRoll.total >= (hasWornArmor ? wornAR : naturalAR)) { isHit = true; hitType = "cleanHit"; targetAR = hasWornArmor ? wornAR : naturalAR; targetLabel = hasWornArmor ? "Worn Armor" : "Natural AR"; } } const primaryTargetAR = hasWornArmor ? wornAR : naturalAR; const rollData = { targetUuid: target.document.uuid, targetTokenId: target.id, damageFormula: weapon.system.damageFormula, attackRollTotal: attackRoll.total, targetAR: targetAR, targetType: hitType, maneuverKey: maneuverKey, weaponName: weapon.name }; let chatContent = `<p>Attacking <strong>${targetLabel || 'Target'}</strong> (${primaryTargetAR}) | Min. Roll: ${minimumRoll}</p>${renderedRoll}`; let nat20Text = ""; const d20Roll = attackRoll.terms[0]; if (d20Roll instanceof Die && d20Roll.faces === 20 && d20Roll.results[0].result === 20) { nat20Text = `<h3 class="chat-nat20">NATURAL 20!</h3>`; chatContent += nat20Text; } if (isHit) { const hitLabel = hitType === "armorHit" ? "ARMOR HIT!" : "CLEAN HIT!"; chatContent += `<strong class="chat-success">${hitLabel}</strong>`; let buttons = `<button data-action="roll-damage">Roll Damage</button><button data-action="roll-defense" data-defense-type="parry" data-dc="${attackRoll.total}">Parry</button><button data-action="roll-defense" data-defense-type="dodge" data-dc="${attackRoll.total}">Dodge</button>`; if (maneuverKey === 'proficientRanged') { buttons += `<button data-action="roll-apply-hp-damage">Roll Half Damage to HP</button>`; } chatContent += `<div class="card-buttons">${buttons}</div>`; } else { let missReason = ""; if (attackRoll.total < minimumRoll) { missReason = ` (failed to meet min. roll of ${minimumRoll})`; } else if (attackRoll.total < primaryTargetAR) { missReason = ` (failed vs AR ${primaryTargetAR})`; } chatContent += `<strong class="chat-failure">MISS!${missReason}</strong>`; } const flavorText = `<h2>${weapon.name} vs. ${target.name}</h2>`; await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: this.actor }), flavor: flavorText, content: chatContent, flags: { palladium: { rollData } } }); }
-async _onEffectEdit(event) {
+  async _onPostPower(event) {
+    event.preventDefault();
+    const itemElement = event.currentTarget.closest(".item");
+    const item = this.actor.items.get(itemElement.dataset.itemId);
+    if (!item) return;
+    const combatant = game.combat?.combatants.find(c => c.actorId === this.actor.id);
+
+    if (combatant) {
+      // If the actor is in combat, perform the action cost check.
+      const actionCost = item.system.actionCost || 0;
+      const currentActions = this.actor.system.actions.value;
+
+      if (currentActions < actionCost) {
+        ChatMessage.create({
+          speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+          content: `${this.actor.name} is trying to use ${item.name} and does not have enough actions. They have: ${currentActions} and need: ${actionCost}.`
+        });
+        return; // Stop the action.
+      }
+      
+      // If the check passes, subtract actions before proceeding.
+      await this.actor.update({ 'system.actions.value': currentActions - actionCost });
+    }
+    // --- END of MODIFIED LOGIC ---
+
+
+    let content = await TextEditor.enrichHTML(item.system.description, {
+        async: true
+    });
+    const powerData = {
+        powerName: item.name,
+        saveType: item.system.saveType,
+        saveDC: item.system.saveDC,
+        damageFormula: item.system.damageFormula
+    };
+    let buttons = '';
+    if (item.system.saveType !== "none") {
+        const saveLabel = this.actor.system.saves[item.system.saveType]?.label ?? "Save";
+        buttons += `<button data-action="roll-power-save">${saveLabel} vs DC ${item.system.saveDC}</button>`;
+    }
+    if (item.system.damageFormula) {
+        buttons += `<button data-action="roll-power-damage">Roll Damage</button>`;
+    }
+    if (buttons) {
+        content += `<hr><div class="card-buttons">${buttons}</div>`;
+    }
+    ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({
+            actor: this.actor
+        }),
+        flavor: `<h2>${item.name}</h2>`,
+        content: content,
+        flags: {
+            palladium: {
+                powerData
+            }
+        }
+    });
+  }
+async _onWeaponAttackRoll(event) {
+    event.preventDefault();
+    const weaponId = event.currentTarget.closest(".item").dataset.itemId;
+    if (!weaponId) return;
+    const weapon = this.actor.items.get(weaponId);
+    const targets = Array.from(game.user.targets);
+    if (targets.length === 0) return ui.notifications.warn("Please target a token.");
+    const target = targets[0];
+    const targetActor = target.actor;
+
+    const hasWornArmor = (targetActor.system.armor.worn ?? 0) > 0;
+    const wornAR = targetActor.system.armor.worn ?? 0;
+    const naturalAR = targetActor.system.armor.natural ?? 0;
+    const primaryTargetAR = hasWornArmor ? wornAR : naturalAR;
+
+    const isAimed = this.actor.getFlag("palladium", "aimedShot") ?? false;
+    const isCalled = this.actor.getFlag("palladium", "calledShot") ?? false;
+    const maneuverKey = weapon.system.maneuver || "strike";
+    const maneuverBonus = this.actor.system.maneuvers[maneuverKey]?.bonus ?? 0;
+    
+    const attackFormula = `1d20 + ${maneuverBonus} + @penalties.weaponAttacks + ${isAimed ? 3 : 0} + ${isCalled ? -3 : 0}`;
+    const attackRoll = new Roll(attackFormula, this.actor.getRollData());
+    await attackRoll.evaluate();
+    const renderedRoll = await attackRoll.render();
+
+    const rangedManeuvers = ['sniper', 'proficientRanged', 'proficientThrown'];
+    const minimumRoll = rangedManeuvers.includes(maneuverKey) ? 8 : 4;
+    
+    let isHit = attackRoll.total >= minimumRoll && attackRoll.total >= primaryTargetAR;
+    
+    const flavorText = `<h2>${weapon.name}</h2>`;
+    
+    let chatContent = `
+      <p><strong>Attacker:</strong> ${this.actor.name}</p>
+      <p><strong>Defender:</strong> ${target.name}</p>
+      <p><strong>Target Number:</strong> ${primaryTargetAR}</p>
+      <hr>
+      ${renderedRoll}
+    `;
+
+    if (isHit) {
+      chatContent += `<strong class="chat-success">HIT!</strong>`;
+      
+      // The fourth button for Proficient Ranged is now removed from here.
+      const buttons = `<div class="card-buttons">
+        <button data-action="roll-damage">Roll Damage</button>
+        <button data-action="roll-defense" data-defense-type="parry" data-dc="${attackRoll.total}">Parry</button>
+        <button data-action="roll-defense" data-defense-type="dodge" data-dc="${attackRoll.total}">Dodge</button>
+      </div>`;
+      chatContent += buttons;
+    } else {
+      let missReason = attackRoll.total < minimumRoll ? `(failed min. roll of ${minimumRoll})` : `(failed vs AR ${primaryTargetAR})`;
+      chatContent += `<strong class="chat-failure">MISS! ${missReason}</strong>`;
+    }
+
+    const rollData = { 
+      targetUuid: target.document.uuid, 
+      targetTokenId: target.id, 
+      damageFormula: weapon.system.damageFormula,
+      weaponName: weapon.name,
+      maneuverKey: maneuverKey // NEW: Pass the maneuver key forward
+    };
+
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+      flavor: flavorText,
+      content: chatContent,
+      flags: { palladium: { rollData } }
+    });
+  }
+
+  
+  async _onEffectEdit(event) {
     event.preventDefault();
     const effectElement = event.currentTarget.closest(".item");
     if (!effectElement) return;
@@ -290,4 +428,44 @@ async _onEffectEdit(event) {
     // 4. By handling it here, we stop the original "effect" item from being created on the actor.
     return;
   }
+
+  async _onRollPerception(event) {
+    event.preventDefault();
+    // This correctly reads the value directly from the actor's data model.
+    const perceptionValue = this.actor.system.perception.value || 0;
+    const roll = new Roll(`1d20 + ${perceptionValue}`);
+    await roll.evaluate();
+    await roll.toMessage({
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+      flavor: `<h2>Perception Check</h2>`
+    });
+  }
+
+  _onEditNotes(event) {
+    event.preventDefault();
+    this._notesEditing = true;
+    this.render(false);
+  }
+
+  /** @override */
+  _getEditorV2Options() {
+    return foundry.utils.mergeObject(super._getEditorV2Options(), {
+      "system.notes": {
+        plugins: ["menu"],
+        engine: "prosemirror",
+        // This callback runs when the editor's save button is clicked.
+        save_callback: () => {
+          this._notesEditing = false;
+          this.render(false);
+        }
+      }
+    });
+  }
+  _onCancelNotesEdit(event) {
+    event.preventDefault();
+    // Simply set the editing state to false and re-render the sheet.
+    this._notesEditing = false;
+    this.render(false);
+  }
+
 }

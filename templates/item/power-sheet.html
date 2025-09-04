@@ -6,6 +6,10 @@
   <div class="sheet-body">
     <div class="grid grid-3col">
       <div class="form-group">
+        <label>Action Cost</label>
+        <input type="number" name="system.actionCost" value="{{item.system.actionCost}}"/>
+      </div>
+      <div class="form-group">
         <label>Saving Throw Type</label>
         <select name="system.saveType">
           {{#select item.system.saveType}}

@@ -49,9 +49,9 @@
   "Item": {
     "types": ["skill", "weapon", "armor", "power", "effect"],
     "skill": { "description": "", "base": 0, "perLevel": 0, "occupational": false, "total": 0 },
-    "weapon": { "description": "", "damageFormula": "1d6", "toHitBonus": 0, "parryBonus": 0, "range": "Melee", "maneuver": "strike" },
+    "weapon": { "description": "", "damageFormula": "1d6", "toHitBonus": 0, "parryBonus": 0, "range": "Melee", "maneuver": "strike", "actionCost": 1 },
     "armor": { "description": "", "ar": 10, "sdc": 100 },
     "power": { "description": "", "saveType": "none", "saveDC": 12, "damageFormula": "" },
-    "effect": { "penalty": -2, "appliesTo": { "weaponAttacks": false, "defenses": false, "savingThrows": false }, "statusEffect": "" }
+    "effect": { "penalty": -2, "appliesTo": { "weaponAttacks": false, "defenses": false, "savingThrows": false }, "statusEffect": "", "actionCost": 1 }
   }
 }

@@ -131,3 +131,44 @@
   flex-direction: column;
   gap: 2px; /* A small gap between the stat block and its buttons */
 }
+
+/* Styling for the Notes tab read-only view */
+.palladium .notes-display {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 5px;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid #c8c0bb;
+  min-height: 400px;
+}
+.palladium .edit-controls {
+  text-align: right;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+.palladium .edit-controls a {
+  font-family: "Modesto Condensed", "Palatino Linotype", "Book Antiqua", Palatino, serif;
+  font-size: 1.2em;
+}
+/* Ensure the notes tab content fills the available space ONLY WHEN ACTIVE */
+.palladium .tab.notes.active {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* --- Fix for Rich Text Editor Height in Notes Tab --- */
+
+/* Target the main container created by the {{editor}} helper */
+.palladium .tab.notes .editor {
+  /* Make the editor's container fill the tab's height */
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Target the actual text area inside the editor */
+.palladium .tab.notes .editor .editor-content {
+  /* Make the content area expand to fill the available space */
+  flex-grow: 1;
+}
