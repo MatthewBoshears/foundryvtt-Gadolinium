@@ -172,3 +172,17 @@
   /* Make the content area expand to fill the available space */
   flex-grow: 1;
 }
+
+/* Styling for the editable name input in the new header */
+.palladium .sheet-header-new .charname input {
+  background: none;
+  border: none;
+  color: inherit; /* Inherit the light text color from the header */
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  width: 100%;
+  padding: 0;
+  text-align: left;
+}

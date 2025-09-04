@@ -317,8 +317,6 @@ async _onWeaponAttackRoll(event) {
 
     if (isHit) {
       chatContent += `<strong class="chat-success">HIT!</strong>`;
-      
-      // The fourth button for Proficient Ranged is now removed from here.
       const buttons = `<div class="card-buttons">
         <button data-action="roll-damage">Roll Damage</button>
         <button data-action="roll-defense" data-defense-type="parry" data-dc="${attackRoll.total}">Parry</button>
@@ -335,18 +333,28 @@ async _onWeaponAttackRoll(event) {
       targetTokenId: target.id, 
       damageFormula: weapon.system.damageFormula,
       weaponName: weapon.name,
-      maneuverKey: maneuverKey // NEW: Pass the maneuver key forward
+      maneuverKey: maneuverKey
     };
 
+    // --- AUTOMATED ANIMATIONS COMPATIBILITY ---
     await ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       flavor: flavorText,
       content: chatContent,
-      flags: { palladium: { rollData } }
+      // NEW: Embed the roll object so other modules can see it.
+      rolls: [attackRoll], 
+      // NEW: Add the weapon's ID to a standard flag location.
+      flags: {
+        core: {
+          sourceId: weapon.uuid 
+        },
+        palladium: { rollData }
+      }
     });
+    // --- END COMPATIBILITY CHANGES ---
   }
 
-  
+
   async _onEffectEdit(event) {
     event.preventDefault();
     const effectElement = event.currentTarget.closest(".item");
