@@ -2,7 +2,7 @@
   "id": "palladium",
   "title": "Palladium System",
   "description": "A system designed to emulate the feel of Palladium RPGs.",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "compatibility": {
     "minimum": "13",
     "verified": "13.328"
